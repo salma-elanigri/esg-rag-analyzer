@@ -1,0 +1,16 @@
+from abc import ABC, abstractmethod
+from typing import List
+from models import DocumentChunk
+
+class IDocumentLoader(ABC):
+    """
+    This is the PORT.
+    Any class that wants to be a 'loader' MUST implement these methods.
+    """
+
+    @abstractmethod
+    def load(self, file_path: str) -> List[DocumentChunk]:
+        """
+        The rule: You must accept a file path and return a list of chunks.
+        """
+        pass
