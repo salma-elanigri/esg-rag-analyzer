@@ -5,6 +5,8 @@ from src.core.models import DocumentChunk
 
 CHUNK_SIZE = 1000
 NEXT_CHUNK_BUFFER_size = 200
+
+
 class DocumentSplitter(IDocumentSplitter):
     def split(self, page_chunk: DocumentChunk) -> List[DocumentChunk]:
         text_chunks = []
