@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from models import DocumentChunk
+from src.core.models import DocumentChunk
 
 class IDocumentLoader(ABC):
     """
@@ -12,5 +12,12 @@ class IDocumentLoader(ABC):
     def load(self, file_path: str) -> List[DocumentChunk]:
         """
         The rule: You must accept a file path and return a list of chunks.
+        """
+        pass
+class IDocumentSplitter(ABC):
+    def split(self, chunk: DocumentChunk) -> List[DocumentChunk]:
+        """
+        Accepts a single DocumentChunk (e.g., one page).
+        Returns a list of smaller DocumentChunks.
         """
         pass
