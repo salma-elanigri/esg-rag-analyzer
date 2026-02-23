@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from src.core.models import DocumentChunk
 
+
 class IDocumentLoader(ABC):
     """
     This is the PORT.
@@ -14,10 +15,29 @@ class IDocumentLoader(ABC):
         The rule: You must accept a file path and return a list of chunks.
         """
         pass
+
+
 class IDocumentSplitter(ABC):
+    @abstractmethod
     def split(self, chunk: DocumentChunk) -> List[DocumentChunk]:
         """
         Accepts a single DocumentChunk (e.g., one page).
         Returns a list of smaller DocumentChunks.
+        """
+        pass
+
+
+class IEmbedder(ABC):
+    @abstractmethod
+    def embed_text(self, text: str) -> List[float]:
+        """
+        Embedding a single text
+        """
+        pass
+
+    @abstractmethod
+    def embed_document(self, text: List[str]) -> List[List[float]]:
+        """
+        Embedding multiple texts
         """
         pass
