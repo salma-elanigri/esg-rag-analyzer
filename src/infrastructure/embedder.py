@@ -9,7 +9,7 @@ class Embedder(IEmbedder):
         logging.info(f"Loading Embedder sentence transformer {model_name}...")
         self.model = SentenceTransformer(model_name)
 
-    def embed_document(self, texts: list[str]) -> list[list[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         embeddings = self.model.encode(texts)
         return embeddings.tolist()
 
