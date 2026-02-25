@@ -43,7 +43,7 @@ class IEmbedder(ABC):
         pass
 class IVectorStore(ABC):
     @abstractmethod
-    def add_document(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
+    def add_documents(self, chunks: List[DocumentChunk]) -> None:
         pass
     @abstractmethod
     def similarity_search(self, query: str,  k:int=4) -> List[DocumentChunk]:

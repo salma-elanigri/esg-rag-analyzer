@@ -1,48 +1,61 @@
 import logging
-from src.infrastructure.document_splitter import DocumentSplitter
-from src.infrastructure.embedder import Embedder
-from src.infrastructure.pdf_loader import PdfLoader
+import sys
 
-# Configure logging to show INFO level messages
+# Setup Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 1. Initialize Adapters
-loader = PdfLoader()
-splitter = DocumentSplitter()
-embedder = Embedder()
+# Imports
+from src.infrastructure.pdf_loader import PdfLoader
+from src.infrastructure.document_splitter import DocumentSplitter
+from src.infrastructure.embedder import Embedder
+from src.infrastructure.chroma_store import ChromaStore
+from src.core.models import DocumentChunk
 
-# 2. Load
-pages = loader.load("2025-pwc-network-sustainability-report.pdf")
-logging.info(f"Total pages loaded: {len(pages)}")
 
-# 3. Split
-all_splits = []
-for page in pages:
-    splits = splitter.split(page)
-    all_splits.extend(splits)
+def main():
+    logging.info("=== Starting E2E Test ===")
 
-# 4. Embed
-# Take the first 3 chunks
-sample_texts = [chunk.content for chunk in all_splits[:3]]
-vectors = embedder.embed_document(sample_texts)
+    # 1. Initialize Adapters
+    logging.info("Initializing adapters...")
+    loader = PdfLoader()
+    splitter = DocumentSplitter()
+    embedder = Embedder()  # Downloads model if needed
+    vector_store = ChromaStore(embedder=embedder)
 
-logging.info("--- Embedding Test ---")
-logging.info(f"Generated {len(vectors)} vectors.")
-logging.info(f"Dimension of each vector: {len(vectors[0])}") 
-# Should be 384 for MiniLM
-logging.info(f"First 5 numbers of vector 1: {vectors[0][:5]}")
+    # 2. Ingestion Pipeline
+    pdf_path = "2025-pwc-network-sustainability-report.pdf"
 
-# 5. Verify
-logging.info(f"Total chunks AFTER split: {len(all_splits)}")
+    logging.info(f"Loading PDF: {pdf_path}...")
+    pages = loader.load(pdf_path)
 
-if all_splits:
-    logging.info("--- First Split Chunk Preview ---")
-    logging.info(f"Content: {all_splits[0].content[:200]}...")
-    logging.info(f"Source Page: {all_splits[0].page_number}")
+    logging.info(f"Splitting {len(pages)} pages...")
+    all_chunks = []
+    for page in pages:
+        splits = splitter.split(page)
+        all_chunks.extend(splits)
 
-    # Check the overlap: Let's look at the second chunk
-    logging.info("--- Second Split Chunk Preview ---")
-    logging.info(f"Content: {all_splits[1].content[:200]}...")
-    logging.info(f"Source Page: {all_splits[1].page_number}")
-else:
-    logging.warning("No chunks found.")
+    logging.info(f"Total chunks generated: {len(all_chunks)}")
+
+    # 3. Store in Vector DB
+    logging.info("Saving chunks to ChromaDB (this might take a moment)...")
+    vector_store.add_documents(all_chunks)
+    logging.info("Data saved successfully!")
+
+    # 4. Retrieval Test (The "Query")
+    query = "What are the main environmental risks?"
+    logging.info(f"\n=== Querying: '{query}' ===")
+
+    results = vector_store.similarity_search(query, k=3)
+
+    if results:
+        logging.info(f"Found {len(results)} relevant chunks:")
+        for i, chunk in enumerate(results):
+            logging.info(f"\n--- Result {i + 1} ---")
+            logging.info(f"Source Page: {chunk.page_number}")
+            logging.info(f"Content Preview: {chunk.content[:150]}...")
+    else:
+        logging.warning("No results found.")
+
+
+if __name__ == "__main__":
+    main()
