@@ -36,8 +36,15 @@ class IEmbedder(ABC):
         pass
 
     @abstractmethod
-    def embed_document(self, text: List[str]) -> List[List[float]]:
+    def embed_documents(self, text: List[str]) -> List[List[float]]:
         """
         Embedding multiple texts
         """
+        pass
+class IVectorStore(ABC):
+    @abstractmethod
+    def add_document(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
+        pass
+    @abstractmethod
+    def similarity_search(self, query: str,  k:int=4) -> List[DocumentChunk]:
         pass
