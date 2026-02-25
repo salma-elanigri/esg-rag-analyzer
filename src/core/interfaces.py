@@ -48,3 +48,8 @@ class IVectorStore(ABC):
     @abstractmethod
     def similarity_search(self, query: str,  k:int=4) -> List[DocumentChunk]:
         pass
+
+class ILLMService(ABC):
+    @abstractmethod
+    def generate(self, prompt: str) -> str:
+        pass
