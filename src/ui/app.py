@@ -1,13 +1,20 @@
+import io
+
 import streamlit as st
 import logging
+import os
+import sys
+
+# Add the project root directory to Python's path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Imports from your architecture
 from src.infrastructure.pdf_loader import PdfLoader
-from src.infrastructure.text_splitter import DocumentSplitter
+from src.infrastructure.document_splitter import DocumentSplitter
 from src.infrastructure.embedder import Embedder
 from src.infrastructure.chroma_store import ChromaStore
 from src.infrastructure.ollama_service import OllamaService
-from src.core.rag_service import RagService
+from src.application.rag_service import RagService
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +36,6 @@ def initialize_services():
     rag = RagService(loader, splitter, vector_store, llm)
     return rag
 
-
 # Initialize the RAG service
 rag_service = initialize_services()
 
@@ -48,11 +54,18 @@ with st.sidebar:
     uploaded_file = st.file_uploader("Upload an ESG Report (PDF)", type="pdf")
 
     if uploaded_file is not None:
-        # TODO: Handle the file upload
-        # 1. Save the uploaded file to disk temporarily (or read bytes)
-        # 2. Call rag_service.ingest(file_path)
-        # 3. Show a success message
-        st.success("Ready to chat!")
+        try:
+            # Convert uploaded file to a BytesIO object (Virtual File in RAM)
+            bytes_data = io.BytesIO(uploaded_file.getvalue())
+
+            # Pass directly to the service
+            with st.spinner("Processing PDF... This might take a moment."):
+                rag_service.ingest(bytes_data)
+
+            st.success("PDF Processed successfully! You can now ask questions.")
+
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 # --- 4. Main Chat Interface ---
 st.header("💬 ESG Assistant")
@@ -74,8 +87,7 @@ if prompt := st.chat_input("Ask a question about the report"):
         st.markdown(prompt)
 
     # Generate Response
-    # TODO: Call rag_service.ask(prompt)
-    # response = rag_service.ask(prompt)
+    response = rag_service.ask(prompt)
 
     # For now, just a placeholder
     response = f"I heard you ask: {prompt}"  # Replace this with actual RAG call

@@ -1,4 +1,5 @@
-from typing import List
+import io
+from typing import List, Union
 
 import pymupdf
 
@@ -7,9 +8,16 @@ from src.core.models import DocumentChunk
 
 
 class PdfLoader(IDocumentLoader):
-    def load(self, file_path: str) -> List[DocumentChunk]:
+    def load(self, file_source: Union[str, io.BytesIO]) -> List[DocumentChunk]:
         document_chunks = []
-        document = pymupdf.open(file_path)
+        # Check if source is a string (path) or bytes (stream)
+        if isinstance(file_source, str):
+            # a string file path
+            document = pymupdf.open(file_source)
+        else:
+            # a BytesIO
+            document = pymupdf.open(stream=file_source, filetype="pdf")
+
         for page_index in range(document.page_count):
             page = document.load_page(page_index)
             page_text = page.get_text()
