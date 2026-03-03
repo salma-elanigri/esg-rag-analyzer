@@ -1,6 +1,6 @@
 import io
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import List, Union, Generator
 from src.core.models import DocumentChunk
 
 
@@ -55,5 +55,5 @@ class IVectorStore(ABC):
 
 class ILLMService(ABC):
     @abstractmethod
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str) -> Generator[str, None, None]:
         pass

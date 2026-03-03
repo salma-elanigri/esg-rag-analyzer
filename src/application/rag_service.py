@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Generator
 
 from src.core.interfaces import IDocumentSplitter, IVectorStore, ILLMService, IDocumentLoader
 from src.core.models import DocumentChunk
@@ -42,7 +42,7 @@ class RagService:
             """""
         return prompt
 
-    def ask(self, question: str) -> str:
+    def ask(self, question: str) -> Generator[str, None, None]:
         # get relevant text chunks obtained by semantic similarity from chromadb
         relevant_chunks = self.vector_store.similarity_search(question, k=10)
         # convert qst to prompt
