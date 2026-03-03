@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 .venv/
 venv/
+run_test.py
+2025-pwc-network-sustainability-report.pdf
 
 # Environment Variables
 .env
@@ -15,5 +17,4 @@ data/
 test.pdf
 
 # IDE
-.vscode/
 .idea/

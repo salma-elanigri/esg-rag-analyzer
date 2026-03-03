@@ -6,7 +6,7 @@ turning dense sustainability PDFs into an interactive Q&A interface.
 **Python:** 3.11 | **Architecture:** Hexagonal (Clean Architecture) | **LLM:** Mistral via Ollama
 
 ## 📹 Demo
-[▶ Watch the demo](https://www.loom.com/share/337e70ef92c7402c8dafa58ebed20587)
+[![ESG Insight RAG Assistant Demo]](https://www.loom.com/share/337e70ef92c7402c8dafa58ebed20587)
 
 ---
 
@@ -28,17 +28,18 @@ graph TD
     subgraph Core Domain
         Service[RAG Service]
         Port1[IDocumentLoader]
-        Port2[ITextSplitter]
-        Port3[IVectorStore]
-        Port4[ILLMService]
+        Port2[IDocumentSplitter]
+        Port3[IEmbedder]
+        Port4[IVectorStore]
+        Port5[ILLMService]
     end
 
     subgraph Infrastructure
         Loader[PDF Loader Adapter]
-        Splitter[Text Splitter Adapter]
+        Splitter[Document Splitter Adapter]
+        Embedder[Sentence Transformers Adapter]
         Store[ChromaDB Adapter]
         LLM[Ollama Adapter]
-        Embedder[Sentence Transformers]
     end
 
     UI --> Service
@@ -47,13 +48,13 @@ graph TD
     Service -.-> Port2
     Service -.-> Port3
     Service -.-> Port4
+    Service -.-> Port5
 
     Loader --> Port1
     Splitter --> Port2
-    Store --> Port3
-    LLM --> Port4
-
-    Embedder --> Store
+    Embedder --> Port3
+    Store --> Port4
+    LLM --> Port5
 ```
 
 ---
@@ -125,13 +126,15 @@ Keep this running in another terminal.
 streamlit run src/ui/app.py
 ```
 
-Open `http://192.168.1.3:8501/`
+Open `http://192.168.1.3:8501`
 
 ---
 
 ## 💡 Usage
 
 **Upload** a PDF ESG report (any published sustainability report works).
+
+> 💡 **Need a sample?** Try the [Apple Environmental Progress Report 2025](https://www.apple.com/environment/pdf/Apple_Environmental_Progress_Report_2025.pdf) — free to download.
 
 **Process** — the system automatically extracts text, creates embeddings, and stores vectors.
 
