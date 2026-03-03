@@ -21,7 +21,7 @@ This project follows **Hexagonal Architecture (Ports & Adapters)**.
 ```mermaid
 graph TD
 
-    subgraph Interface Layer
+    subgraph UI Layer
         UI[Streamlit UI]
     end
 
