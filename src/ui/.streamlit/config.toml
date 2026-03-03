@@ -1,0 +1,10 @@
+[theme]
+primaryColor="#2E8B57"       # SeaGreen (ESG Vibe)
+backgroundColor="#0E1117"    # Very Dark Blue/Black
+secondaryBackgroundColor="#262730" # Slightly lighter for sidebar
+textColor="#FAFAFA"         # White text
+font="sans serif"
+
+[client]
+showErrorDetails = false
+toolbarMode = "minimal"

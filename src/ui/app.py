@@ -45,7 +45,6 @@ st.set_page_config(
     page_icon="🌱",
     layout="wide"
 )
-
 # --- 3. Sidebar (The Input) ---
 with st.sidebar:
     st.header("📄 Document Ingestion")
@@ -67,8 +66,22 @@ with st.sidebar:
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
+    else:
+        st.info("👆 Upload a PDF to start analyzing.")
+
 # --- 4. Main Chat Interface ---
-st.header("💬 ESG Assistant")
+st.markdown("<h1 style='text-align: center; color: #2E8B57;'>🌿 ESG Assistant</h1>", unsafe_allow_html=True)
+# If no file is uploaded, show a Welcome Hero
+if uploaded_file is None:
+    st.markdown("""
+    <div style='text-align: center; padding: 50px;'>
+        <h2 style='color: #2E8B57;'>Welcome to ESG Insight</h2>
+        <p style='color: #AAAAAA;'>Upload a Sustainability Report to unlock AI-driven insights.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Stop execution here so chat doesn't show
+    st.stop()
 
 # Chat History placeholder
 if "messages" not in st.session_state:
@@ -89,11 +102,8 @@ if prompt := st.chat_input("Ask a question about the report"):
     # Generate Response
     response = rag_service.ask(prompt)
 
-    # For now, just a placeholder
-    response = f"I heard you ask: {prompt}"  # Replace this with actual RAG call
-
     # Display assistant response
     with st.chat_message("assistant"):
-        st.markdown(response)
+        response = st.write_stream(rag_service.ask(prompt))
 
     st.session_state.messages.append({"role": "assistant", "content": response})
