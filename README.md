@@ -1,63 +1,24 @@
 # 🌱 ESG Insight RAG Assistant
 
-A **privacy-focused Retrieval-Augmented Generation (RAG)** application
-designed to query complex **ESG (Environmental, Social, and
-Governance)** reports using **local LLMs**.
+A RAG application for querying complex ESG reports —
+turning dense sustainability PDFs into an interactive Q&A interface.
 
-This project demonstrates **Hexagonal (Clean) Architecture**, separating
-**domain logic from infrastructure** to ensure **modularity,
-scalability, and testability**.
+**Python:** 3.11 | **Architecture:** Hexagonal (Clean Architecture) | **LLM:** Mistral via Ollama
 
-**Python:** 3.11\
-**Architecture:** Hexagonal (Clean Architecture)\
-**LLM:** Mistral via Ollama
+## 📹 Demo
+[▶ Watch the demo](https://www.loom.com/share/337e70ef92c7402c8dafa58ebed20587)
 
-------------------------------------------------------------------------
+---
 
-# 🌟 Features
-
-### 📄 Intelligent Ingestion
-
--   Parses **PDF ESG reports**
--   Splits text into **semantic chunks**
--   Generates **embeddings locally**
-
-### 🔍 Semantic Search
-
-Uses **ChromaDB** to retrieve context based on **semantic similarity**,
-not just keywords.
-
-### 🤖 Local AI
-
-Powered by **Ollama** with the **Mistral 7B model**.
-
--   No API keys\
--   No external data sharing\
--   Fully local inference
-
-### 🏗️ Clean Architecture
-
-Fully decoupled layers:
-
--   **Domain**
--   **Infrastructure**
--   **Interface**
-
-### 💬 Interactive UI
-
-Real-time chat interface built with **Streamlit**.
-
-------------------------------------------------------------------------
-
-# 🏗️ Architecture
+## 🏗️ Architecture
 
 This project follows **Hexagonal Architecture (Ports & Adapters)**.
 
--   The **Core Domain (`RagService`)** defines the business logic.
--   **Ports (interfaces)** define contracts.
--   **Adapters** implement those contracts for external services.
+- The **Core Domain (`RagService`)** defines the business logic.
+- **Ports (interfaces)** define contracts.
+- **Adapters** implement those contracts for external services.
 
-``` mermaid
+```mermaid
 graph TD
 
     subgraph Interface Layer
@@ -87,71 +48,51 @@ graph TD
     Service -.-> Port3
     Service -.-> Port4
 
-    Loader ..> Port1
-    Splitter ..> Port2
-    Store ..> Port3
-    LLM ..> Port4
+    Loader --> Port1
+    Splitter --> Port2
+    Store --> Port3
+    LLM --> Port4
 
     Embedder --> Store
 ```
 
-------------------------------------------------------------------------
+---
 
-# 🛠️ Tech Stack
+## 🧠 Design Decisions
 
-  Category          Technology
-  ----------------- -----------------------
-  Language          Python 3.11
-  Package Manager   uv
-  LLM Inference     Ollama
-  Embeddings        Sentence Transformers
-  Vector Database   ChromaDB
-  PDF Processing    PyMuPDF
-  Web Framework     Streamlit
-  Data Validation   Pydantic
+### Why Hexagonal Architecture?
+Most RAG tutorials are monolithic scripts. I structured this project with explicit Ports and Adapters so that the core `RagService` has zero knowledge of external tools. Swapping ChromaDB for Pinecone, or Mistral for GPT-4, requires only a new Adapter — the domain logic stays untouched. It also means the business logic is fully testable by mocking adapters, without needing a real database or LLM running.
 
-------------------------------------------------------------------------
+### Why no LangChain?
+I built the pipeline directly using `chromadb`, `sentence-transformers`, and `ollama`. This was a deliberate choice: LangChain abstracts away the mechanics that matter — vector math, prompt construction, retrieval logic. Building it manually proves I understand *why* RAG works, not just how to assemble it.
 
-# 📂 Project Structure
+### Why Mistral via Ollama?
+Zero-cost local inference — no API keys, no usage limits, fully self-contained. Anyone can clone and run it without configuration overhead.
 
-    esg-rag-portfolio/
-    │
-    ├── src/
-    │   ├── core/
-    │   │   ├── interfaces.py
-    │   │   ├── models.py
-    │   │   └── rag_service.py
-    │   │
-    │   ├── infrastructure/
-    │   │   ├── chroma_store.py
-    │   │   ├── embedder.py
-    │   │   ├── ollama_service.py
-    │   │   ├── pdf_loader.py
-    │   │   └── text_splitter.py
-    │   │
-    │   └── ui/
-    │       └── app.py
-    │
-    ├── tests/
-    ├── chroma_db/
-    ├── requirements.txt
-    └── README.md
+### A tradeoff I made consciously
+For text splitting, I chose recursive character splitting with a sliding window (chunk size 1000, step 800, 200-char overlap) over semantic splitting. Semantic splitting is more precise but slow and expensive. The overlap ensures answers that fall at chunk boundaries are still captured in full — and the embeddings model handles semantic meaning anyway, making exact paragraph boundaries less critical.
 
-------------------------------------------------------------------------
+### What surprised me
+Real-world PDFs are messy — tables of contents, inconsistent newlines, mixed formatting. My instinct was to write preprocessing logic to clean them. I held back and tested first: the embeddings model is robust enough that a noisy TOC vector is still mathematically distinct from a carbon emissions paragraph. I learned not to over-engineer preprocessing when the downstream model is resilient.
 
-# 🚀 Getting Started
+---
 
-## Prerequisites
 
--   Python **3.11+**
--   Homebrew (Mac users)
--   Ollama
 
-------------------------------------------------------------------------
 
-# 1️⃣ Install Dependencies
 
-``` bash
+
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.11+
+- Homebrew (Mac users)
+- Ollama
+
+### 1️⃣ Install Dependencies
+
+```bash
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -163,11 +104,9 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-------------------------------------------------------------------------
+### 2️⃣ Setup Local LLM
 
-# 2️⃣ Setup Local LLM
-
-``` bash
+```bash
 # Install Ollama
 brew install ollama
 
@@ -180,60 +119,39 @@ ollama serve
 
 Keep this running in another terminal.
 
-------------------------------------------------------------------------
+### 3️⃣ Run the Application
 
-# 3️⃣ Run the Application
-
-``` bash
+```bash
 streamlit run src/ui/app.py
 ```
 
-Open:
+Open `http://192.168.1.3:8501/`
 
-    http://localhost:8501
+---
 
-------------------------------------------------------------------------
+## 💡 Usage
 
-# 💡 Usage
+**Upload** a PDF ESG report (any published sustainability report works).
 
-### Upload
+**Process** — the system automatically extracts text, creates embeddings, and stores vectors.
 
-Upload a **PDF ESG report** (for example a sustainability report).
+**Chat** — ask natural language questions:
 
-### Process
+```
+What are the company's carbon emission targets?
+How does the company approach supply chain transparency?
+```
 
-The system will automatically:
+The assistant retrieves relevant sections and generates a grounded answer.
 
--   Extract text
--   Create embeddings
--   Store vectors in the database
+---
 
-### Chat
+## 📄 License
 
-Ask questions like:
+This project is for portfolio and demonstration purposes.
 
-    What are the company's carbon emission targets?
-
-The assistant retrieves relevant sections and generates an answer.
-
-------------------------------------------------------------------------
-
-# 🔮 Future Enhancements
-
--   Support **DOCX and TXT**
--   ESG metric extraction
--   Page citations in answers
--   Docker deployment
-
-------------------------------------------------------------------------
-
-# 📄 License
-
-This project is for **portfolio and demonstration purposes**.
-
-------------------------------------------------------------------------
+---
 
 ## 👩‍💻 Author
 
-**Salma EL ANIGRI**\
-NLP & Machine Learning Engineer
+**Salma EL ANIGRI** — NLP & Machine Learning Engineer
