@@ -157,4 +157,4 @@ This project is for portfolio and demonstration purposes.
 
 ## 👩‍💻 Author
 
-**Salma EL ANIGRI** — NLP & Machine Learning Engineer
+**Salma EL ANIGRI** — Applied AI Engineer (NLP/LLM)
