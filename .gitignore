@@ -18,3 +18,6 @@ test.pdf
 
 # IDE
 .idea/
+
+# macOS
+.DS_Store
