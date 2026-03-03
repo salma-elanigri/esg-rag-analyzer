@@ -6,7 +6,7 @@ turning dense sustainability PDFs into an interactive Q&A interface.
 **Python:** 3.11 | **Architecture:** Hexagonal (Clean Architecture) | **LLM:** Mistral via Ollama
 
 ## 📹 Demo
-[![ESG Insight RAG Assistant Demo]](https://www.loom.com/share/337e70ef92c7402c8dafa58ebed20587)
+[▶ Watch the demo](https://www.loom.com/share/337e70ef92c7402c8dafa58ebed20587)
 
 ---
 
