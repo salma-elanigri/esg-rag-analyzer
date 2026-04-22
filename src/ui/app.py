@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+
+
 # Add the project root directory to Python's path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
@@ -13,6 +15,7 @@ from src.infrastructure.pdf_loader import PdfLoader
 from src.infrastructure.document_splitter import DocumentSplitter
 from src.infrastructure.embedder import Embedder
 from src.infrastructure.chroma_store import ChromaStore
+from src.infrastructure.anthropic_service import AnthropicService
 from src.infrastructure.ollama_service import OllamaService
 from src.application.rag_service import RagService
 
@@ -31,7 +34,7 @@ def initialize_services():
     splitter = DocumentSplitter()
     embedder = Embedder()
     vector_store = ChromaStore(embedder=embedder)
-    llm = OllamaService()
+    llm = AnthropicService()
 
     rag = RagService(loader, splitter, vector_store, llm)
     return rag
