@@ -1,0 +1,41 @@
+{
+  "description": "RAGAS evaluation dataset for ESG RAG Assistant — PwC Network Sustainability Report 2025",
+  "model": "claude-haiku-4-5-20251001",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "retrieval": "dense similarity search, k=5",
+  "date": "2025-04-23",
+  "samples": [
+    {
+      "id": 1,
+      "question": "What are PwC's carbon emission targets?",
+      "ground_truth": "PwC has near-term targets for FY30: reduce scope 1 and 2 absolute emissions by 50% from FY19 base, transition to 100% renewable electricity, reduce business travel emissions by 50% from FY19 base, and have 50% of suppliers set science-based targets. Long-term target for FY50: reach net zero and reduce scope 1, 2 and 3 absolute emissions by 90% from FY19 base. Both validated by SBTi."
+    },
+    {
+      "id": 2,
+      "question": "How does PwC approach diversity and inclusion?",
+      "ground_truth": "PwC's materiality assessment identifies 'Own workforce' as a key topic, focused on maintaining an inclusive workplace, developing people skills, supporting wellbeing, and attracting and retaining talent. In FY25, 158,298 PwC employees (nearly 44% of people) participated in sustainability upskilling activities."
+    },
+    {
+      "id": 3,
+      "question": "What is PwC's renewable energy strategy?",
+      "ground_truth": "PwC procures 99% of electricity from renewable sources globally using a mix of self-generation (1%), bundled Energy Attribute Certificates (35%), and unbundled EACs (63%). On-site generation is often not feasible as most facilities are leased. Target is 100% renewable electricity across all PwC firms by FY30."
+    },
+    {
+      "id": 4,
+      "question": "How does PwC measure its scope 3 emissions?",
+      "ground_truth": "PwC calculates scope 3 using the indirect measurement method with a combination of primary and secondary data. Primary data is prioritized for categories 1, 2, 3 and 6. Secondary data via a third-party model is used for category 7 (employee commuting). PwC follows the GHG Protocol Corporate Value Chain Scope 3 Standard and extends beyond minimum boundaries for categories 6 and 7."
+    },
+    {
+      "id": 5,
+      "question": "What social initiatives does PwC support?",
+      "ground_truth": "PwC invested approximately US$36 million in FY25 in climate mitigation including sustainability-focused professionals, renewable energy procurement, supplier engagement and sustainable procurement funding. Sustainability-related projects accounted for approximately US$1.5 billion of revenue in FY25, spanning services supporting clients on climate impacts and energy strategies."
+    }
+  ],
+  "baseline_results": {
+    "faithfulness": 0.48,
+    "answer_relevancy": 0.54,
+    "context_recall": 0.12,
+    "context_precision": 0.20
+  },
+  "next": "Re-run after implementing hybrid search (BM25 + dense embeddings) to measure improvement"
+}
