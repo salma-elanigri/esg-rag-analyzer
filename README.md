@@ -74,13 +74,21 @@ Recursive character splitting (chunk size 1000, overlap 200). The overlap handle
 
 ## 📊 Evaluation Results (PwC Sustainability Report 2025)
 
+Evaluated using the **RAG Triad** — faithfulness, answer relevancy, context recall and context precision — to separate retrieval failures from generation failures.
+
 | Metric | Baseline | After hybrid search |
 |---|---|---|
-| Faithfulness | 0.53 | TBD |
+| Faithfulness | 0.48 | TBD |
 | Answer Relevancy | 0.54 | TBD |
+| Context Recall | 0.12 | TBD |
+| Context Precision | 0.20 | TBD |
 
-Low faithfulness diagnosed as insufficient retrieval coverage. Hybrid search (BM25 + dense embeddings) planned to improve both scores.
+**Diagnosis:** The bottleneck is clearly the **retriever**, not the LLM. Context recall of 0.12 means the retriever is only finding ~12% of the information needed to answer correctly. Claude is doing its best with insufficient context. This is exactly why hybrid search is next — BM25 + dense embeddings should dramatically improve context recall and precision.
 
+Also update the RAGAS section under LangChain Migration:
+- ~~Skipped `context_recall` — requires manually written ground truth answers~~
+- Added full RAG Triad: `faithfulness`, `answer_relevancy`, `context_recall`, `context_precision`
+- Ground truth dataset committed to `src/evaluation/eval_dataset.json`
 ---
 
 ## 🚀 Getting Started
