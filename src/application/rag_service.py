@@ -5,7 +5,12 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
-from src.core.interfaces import IDocumentSplitter, IVectorStore, ILLMService, IDocumentLoader
+from src.core.interfaces import (
+    IDocumentSplitter,
+    IVectorStore,
+    ILLMService,
+    IDocumentLoader,
+)
 from src.core.models import DocumentChunk
 
 
@@ -15,8 +20,13 @@ def _format_docs(documents: List[DocumentChunk]):
 
 
 class RagService:
-    def __init__(self, loader: IDocumentLoader, splitter: IDocumentSplitter, vectorstore: IVectorStore,
-                 llm_service: ILLMService):
+    def __init__(
+        self,
+        loader: IDocumentLoader,
+        splitter: IDocumentSplitter,
+        vectorstore: IVectorStore,
+        llm_service: ILLMService,
+    ):
         self.loader = loader
         self.splitter = splitter
         self.vectorstore = vectorstore
@@ -50,9 +60,13 @@ class RagService:
     def ask(self, question: str) -> Generator[str, None, None]:
         # Build the chain
         chain = (
-                {"context": self.vectorstore.as_retriever(search_kwargs={"k": 10}) | RunnableLambda(_format_docs) , "question": RunnablePassthrough()}
-                | self.prompt
-                | self.llm_service.get_llm()
-                | StrOutputParser()
+            {
+                "context": self.vectorstore.as_retriever(search_kwargs={"k": 10})
+                | RunnableLambda(_format_docs),
+                "question": RunnablePassthrough(),
+            }
+            | self.prompt
+            | self.llm_service.get_llm()
+            | StrOutputParser()
         )
         return chain.stream(question)

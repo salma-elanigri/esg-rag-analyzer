@@ -21,6 +21,8 @@ class PdfLoader(IDocumentLoader):
         for page_index in range(document.page_count):
             page = document.load_page(page_index)
             page_text = page.get_text()
-            document_chunk = DocumentChunk(content=page_text, page_number=page_index + 1)
+            document_chunk = DocumentChunk(
+                content=page_text, page_number=page_index + 1
+            )
             document_chunks.append(document_chunk)
         return document_chunks

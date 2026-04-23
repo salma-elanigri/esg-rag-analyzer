@@ -11,10 +11,10 @@ class OllamaService(ILLMService):
         # make ollama stream the response
         response = ollama.chat(
             model=self.model_name,
-            messages=[{'role': 'user', 'content': prompt}],
-            stream=True
+            messages=[{"role": "user", "content": prompt}],
+            stream=True,
         )
 
         # Extract the text content from the response
         for chunk in response:
-            yield chunk['message']['content']
+            yield chunk["message"]["content"]

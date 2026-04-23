@@ -6,9 +6,8 @@ import os
 import sys
 
 
-
 # Add the project root directory to Python's path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 # Imports from your architecture
 from src.infrastructure.pdf_loader import PdfLoader
@@ -16,7 +15,6 @@ from src.infrastructure.document_splitter import DocumentSplitter
 from src.infrastructure.embedder import Embedder
 from src.infrastructure.chroma_store import ChromaStore
 from src.infrastructure.anthropic_service import AnthropicService
-from src.infrastructure.ollama_service import OllamaService
 from src.application.rag_service import RagService
 
 # Configure Logging
@@ -38,15 +36,12 @@ def initialize_services():
     rag = RagService(loader, splitter, vectorstore, llm)
     return rag
 
+
 # Initialize the RAG service
 rag_service = initialize_services()
 
 # --- 2. Page Config ---
-st.set_page_config(
-    page_title="ESG RAG Assistant",
-    page_icon="🌱",
-    layout="wide"
-)
+st.set_page_config(page_title="ESG RAG Assistant", page_icon="🌱", layout="wide")
 # --- 3. Sidebar (The Input) ---
 with st.sidebar:
     st.header("📄 Document Ingestion")
@@ -72,15 +67,21 @@ with st.sidebar:
         st.info("👆 Upload a PDF to start analyzing.")
 
 # --- 4. Main Chat Interface ---
-st.markdown("<h1 style='text-align: center; color: #2E8B57;'>🌿 ESG Assistant</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<h1 style='text-align: center; color: #2E8B57;'>🌿 ESG Assistant</h1>",
+    unsafe_allow_html=True,
+)
 # If no file is uploaded, show a Welcome Hero
 if uploaded_file is None:
-    st.markdown("""
+    st.markdown(
+        """
     <div style='text-align: center; padding: 50px;'>
         <h2 style='color: #2E8B57;'>Welcome to ESG Insight</h2>
         <p style='color: #AAAAAA;'>Upload a Sustainability Report to unlock AI-driven insights.</p>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Stop execution here so chat doesn't show
     st.stop()

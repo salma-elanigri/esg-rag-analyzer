@@ -18,6 +18,7 @@ class DocumentSplitter(IDocumentSplitter):
             end = start + CHUNK_SIZE
             text_chunk = DocumentChunk(
                 content=page_chunk.content[start:end],
-                page_number=page_chunk.page_number)
+                page_number=page_chunk.page_number,
+            )
             text_chunks.append(text_chunk)
         return text_chunks

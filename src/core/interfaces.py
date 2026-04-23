@@ -8,7 +8,6 @@ from src.core.models import DocumentChunk
 
 
 class IDocumentLoader(ABC):
-
     @abstractmethod
     def load(self, file_source: Union[str, io.BytesIO]) -> List[DocumentChunk]:
         """
@@ -52,11 +51,15 @@ class IVectorStore(ABC):
         pass
 
     @abstractmethod
-    def similarity_search(self, query: str, search_type:str, k: int = 4) -> List[DocumentChunk]:
+    def similarity_search(
+        self, query: str, search_type: str, k: int = 4
+    ) -> List[DocumentChunk]:
         pass
+
     @abstractmethod
     def as_retriever(self, **kwargs):
         pass
+
 
 class ILLMService(ABC):
     @abstractmethod
@@ -65,4 +68,10 @@ class ILLMService(ABC):
 
     @abstractmethod
     def get_llm(self) -> BaseChatModel:
+        pass
+
+
+class IEvaluator(ABC):
+    @abstractmethod
+    def evaluate(self, dataset) -> dict:
         pass
