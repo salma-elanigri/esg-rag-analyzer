@@ -1,6 +1,9 @@
 import io
 from abc import ABC, abstractmethod
 from typing import List, Union, Generator
+
+from langchain_core.language_models import BaseChatModel
+
 from src.core.models import DocumentChunk
 
 
@@ -49,10 +52,17 @@ class IVectorStore(ABC):
         pass
 
     @abstractmethod
-    def similarity_search(self, query: str, k: int = 4) -> List[DocumentChunk]:
+    def similarity_search(self, query: str, search_type:str, k: int = 4) -> List[DocumentChunk]:
+        pass
+    @abstractmethod
+    def as_retriever(self, **kwargs):
         pass
 
 class ILLMService(ABC):
     @abstractmethod
     def generate(self, prompt: str) -> Generator[str, None, None]:
+        pass
+
+    @abstractmethod
+    def get_llm(self) -> BaseChatModel:
         pass

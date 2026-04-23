@@ -1,8 +1,7 @@
 from typing import List
-from datetime import datetime
-import chromadb
 from src.core.interfaces import IVectorStore, IEmbedder
 from src.core.models import DocumentChunk
+from langchain_chroma import Chroma
 
 
 def generate_ids(chunks: List[DocumentChunk]):
@@ -18,38 +17,34 @@ def generate_ids(chunks: List[DocumentChunk]):
 
 
 class ChromaStore(IVectorStore):
+
     def __init__(self, embedder: IEmbedder, ) -> None:
         self.embedder = embedder
-        client = chromadb.PersistentClient(path="./chroma_db")
-        self.collection = client.get_or_create_collection(name="esg_reports", embedding_function=None,
-                                                          metadata={"description": "ESG reports chunks collection",
-                                                                    "created": str(datetime.now())})
+        self.vectorstore = Chroma(
+            persist_directory="./chroma_db",
+            embedding_function=self.embedder
+        )
 
     def add_documents(self, chunks: List[DocumentChunk]) -> None:
         # generate ids, extract texts and metadata in separate lists
         ids, documents, metadatas = generate_ids(chunks)
-        # embed ALL texts at once (Fast)
-        embeddings = self.embedder.embed_documents(documents)
         # store texts and embeddings in the collection
-        self.collection.add(documents=documents,
-                            ids=ids,
-                            embeddings=embeddings,
-                            metadatas=metadatas)
-
-    def similarity_search(self, query: str, k: int = 5) -> List[DocumentChunk]:
-        # embedd query as embedding function is None
-        query_embeddings = self.embedder.embed_text(query)
-        # apply a search using a query
-        results = self.collection.query(
-            query_embeddings=[query_embeddings],
-            n_results=k,
-            include=["documents", "metadatas", "distances"]
+        self.vectorstore.add_texts(
+            texts=documents,
+            metadatas=metadatas,
+            ids=ids
         )
+
+    def as_retriever(self, **kwargs):
+        return self.vectorstore.as_retriever(**kwargs)
+
+    def similarity_search(self, query: str, search_type: str="mmr", k: int = 5) -> List[DocumentChunk]:
+        # apply a search using a query
+        retriever = self.vectorstore.as_retriever(search_type=search_type, search_kwargs={"k": k})
+        results = retriever.invoke(query)
         # reconstruct results to DocumnetChunk
         query_result_chunks = []
-        documents = results["documents"][0]
-        metadatas = results["metadatas"][0]
-        for doc, meta in zip(documents, metadatas):
-            document_chunk = DocumentChunk(content=doc, page_number=meta["page_number"])
+        for doc in results:
+            document_chunk = DocumentChunk(content=doc.page_content, page_number=doc.metadata["page_number"])
             query_result_chunks.append(document_chunk)
         return query_result_chunks

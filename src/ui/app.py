@@ -33,10 +33,9 @@ def initialize_services():
     loader = PdfLoader()
     splitter = DocumentSplitter()
     embedder = Embedder()
-    vector_store = ChromaStore(embedder=embedder)
+    vectorstore = ChromaStore(embedder=embedder)
     llm = AnthropicService()
-
-    rag = RagService(loader, splitter, vector_store, llm)
+    rag = RagService(loader, splitter, vectorstore, llm)
     return rag
 
 # Initialize the RAG service
@@ -101,9 +100,6 @@ if prompt := st.chat_input("Ask a question about the report"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-
-    # Generate Response
-    response = rag_service.ask(prompt)
 
     # Display assistant response
     with st.chat_message("assistant"):
