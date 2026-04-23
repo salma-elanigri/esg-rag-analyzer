@@ -27,7 +27,7 @@ class IDocumentSplitter(ABC):
 
 class IEmbedder(ABC):
     @abstractmethod
-    def embed_text(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> List[float]:
         """
         Embedding a single text
         Returns a list of float values.
@@ -51,7 +51,6 @@ class IVectorStore(ABC):
     @abstractmethod
     def similarity_search(self, query: str, k: int = 4) -> List[DocumentChunk]:
         pass
-
 
 class ILLMService(ABC):
     @abstractmethod
