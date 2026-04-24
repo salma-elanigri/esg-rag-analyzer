@@ -71,29 +71,52 @@ Recursive character splitting (chunk size 1000, overlap 200). The overlap handle
 - Skipped `context_recall` — requires manually written ground truth answers
 
 ---
-
 ## 📊 Evaluation Results (PwC Sustainability Report 2025)
 
 Evaluated using the **RAG Triad** — faithfulness, answer relevancy, context recall and context precision — to separate retrieval failures from generation failures.
 
-| Metric | Baseline (dense only) | v2 Hybrid Search | Δ | v3 Re-ranking |
+| Metric | v1 Baseline (dense) | v2 Hybrid Search | v3 Hybrid + Reranking | Δ v1→v3 |
 |---|---|---|---|---|
-| Faithfulness | 0.48 | 0.71 | +0.23 | TBD |
-| Answer Relevancy | 0.54 | 0.55 | +0.01 | TBD |
-| Context Recall | 0.12 | 0.21 | +0.09 | TBD |
-| Context Precision | 0.20 | 0.14 | -0.06 | TBD |
+| Faithfulness | 0.48 | 0.71 | 0.66 | +0.18 |
+| Answer Relevancy | 0.54 | 0.55 | 0.56 | +0.02 |
+| Context Recall | 0.12 | 0.21 | 0.30 | +0.18 |
+| Context Precision | 0.20 | 0.14 | 0.33 | +0.13 |
 
-### v1 → v2: Hybrid Search (BM25 + dense embeddings)
+---
 
-**Diagnosis:** Baseline context recall of 0.12 revealed the retriever as the bottleneck — only 12% of relevant information was being found. Pure dense search struggled with exact technical terms like *"scope 1"*, *"FY30"*, *"SBTi"*.
+### v1 — Baseline (dense only)
+Pure ChromaDB dense retrieval using `all-MiniLM-L6-v2` embeddings.
 
-**Intervention:** Added BM25 alongside ChromaDB embeddings via `EnsembleRetriever` (weights 0.5/0.5).
+**Diagnosis:** Context recall of 0.12 revealed the retriever as the bottleneck — only 12% of relevant information was being found. Pure semantic search struggled with exact technical terms like *"scope 1"*, *"FY30"*, *"SBTi"*.
+
+---
+
+### v2 — Hybrid Search (BM25 + dense)
+Added BM25 alongside ChromaDB via `EnsembleRetriever` (weights 0.5/0.5).
 
 **Results:**
-- Faithfulness +0.23 — better retrieved context means Claude hallucinates less
-- Context recall +0.09 — BM25 finds chunks containing exact technical terms
-- Context precision -0.06 — known hybrid search tradeoff, BM25 introduces some keyword-matched noise
+- Faithfulness +0.23 — better context = less hallucination
+- Context recall +0.09 — BM25 finds exact technical terms
+- Context precision -0.06 — known tradeoff, BM25 introduces keyword-matched noise
 
+---
+
+### v3 — Hybrid Search + Re-ranking (cross-encoder)
+Added `cross-encoder/ms-marco-MiniLM-L-6-v2` re-ranker via `ContextualCompressionRetriever` (k=5, top_n=5).
+
+**Results:**
+- Context precision +0.13 vs baseline — re-ranker filters BM25 noise ✅
+- Context recall +0.18 vs baseline — best chunks kept after re-ranking ✅
+- Faithfulness +0.18 vs baseline — overall pipeline improvement ✅
+- Increasing k from 5 to 10 showed no significant improvement — re-ranker effectively identifies relevant chunks within initial candidate set
+
+**Key insight:** Hybrid search improved recall at the cost of precision. Re-ranking recovered precision while maintaining recall gains — confirming the standard retrieve-then-rerank pipeline as optimal for ESG document QA.
+
+---
+
+### Evaluation dataset
+Ground truth dataset: `src/evaluation/eval_dataset.json` (5 questions, PwC Network Sustainability Report 2025)
+Evaluation script: `src/evaluation/ragas_eval.py`
 ---
 
 ## 🚀 Getting Started
