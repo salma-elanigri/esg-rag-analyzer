@@ -12,6 +12,7 @@ run_test.py
 
 # Database / Data
 chroma_db/
+evaluation/chroma_db
 data/
 *.pdf
 test.pdf
@@ -21,4 +22,7 @@ test.pdf
 
 # macOS
 .DS_Store
+
+
 .claude/
+roadmap.md

@@ -1,10 +1,15 @@
 from typing import List
+
+from langchain_core import documents
+
 from src.core.interfaces import IVectorStore, IEmbedder
 from src.core.models import DocumentChunk
 from langchain_chroma import Chroma
+from langchain_community.retrievers import BM25Retriever
+from langchain_classic.retrievers import EnsembleRetriever
 
 
-def generate_ids(chunks: List[DocumentChunk]):
+def _generate_ids(chunks: List[DocumentChunk]):
     """This function prepares data for chromadb add function"""
     ids = []
     documents = []
@@ -25,29 +30,48 @@ class ChromaStore(IVectorStore):
         self.vectorstore = Chroma(
             persist_directory="./chroma_db", embedding_function=self.embedder
         )
+        self.bm25_retriever = self.build_bm25()
+
+    def build_bm25(self) -> BM25Retriever | None:
+        """Builds BM25 retriever from existing docs in chroma store"""
+
+        docs = self.vectorstore.get()
+        if docs["documents"]:
+            return BM25Retriever.from_texts(
+                texts=docs["documents"], metadatas=docs["metadatas"]
+            )
+        return None
 
     def add_documents(self, chunks: List[DocumentChunk]) -> None:
         # generate ids, extract texts and metadata in separate lists
-        ids, documents, metadatas = generate_ids(chunks)
+        ids, documents, metadatas = _generate_ids(chunks)
         # store texts and embeddings in the collection
         self.vectorstore.add_texts(texts=documents, metadatas=metadatas, ids=ids)
 
     def as_retriever(self, **kwargs):
-        return self.vectorstore.as_retriever(**kwargs)
+        if self.bm25_retriever is None:
+            # no docs ingested yet, fallback to dense only
+            dense_retriever = self.vectorstore.as_retriever(**kwargs)
+            return dense_retriever
+        else:
+            # Dense retriever
+            dense_retriever = self.vectorstore.as_retriever(**kwargs)
+
+            # Combine — weights must sum to 1.0
+            ensemble_retriever = EnsembleRetriever(
+                retrievers=[self.bm25_retriever, dense_retriever], weights=[0.5, 0.5]
+            )
+            return ensemble_retriever
 
     def similarity_search(
         self, query: str, search_type: str = "mmr", k: int = 5
     ) -> List[DocumentChunk]:
-        # apply a search using a query
-        retriever = self.vectorstore.as_retriever(
-            search_type=search_type, search_kwargs={"k": k}
-        )
+        retriever = self.as_retriever(search_type=search_type, search_kwargs={"k": k})
         results = retriever.invoke(query)
-        # reconstruct results to DocumnetChunk
-        query_result_chunks = []
-        for doc in results:
-            document_chunk = DocumentChunk(
+
+        return [
+            DocumentChunk(
                 content=doc.page_content, page_number=doc.metadata["page_number"]
             )
-            query_result_chunks.append(document_chunk)
-        return query_result_chunks
+            for doc in results
+        ]

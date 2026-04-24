@@ -76,19 +76,24 @@ Recursive character splitting (chunk size 1000, overlap 200). The overlap handle
 
 Evaluated using the **RAG Triad** — faithfulness, answer relevancy, context recall and context precision — to separate retrieval failures from generation failures.
 
-| Metric | Baseline | After hybrid search |
-|---|---|---|
-| Faithfulness | 0.48 | TBD |
-| Answer Relevancy | 0.54 | TBD |
-| Context Recall | 0.12 | TBD |
-| Context Precision | 0.20 | TBD |
+| Metric | Baseline (dense only) | v2 Hybrid Search | Δ | v3 Re-ranking |
+|---|---|---|---|---|
+| Faithfulness | 0.48 | 0.71 | +0.23 | TBD |
+| Answer Relevancy | 0.54 | 0.55 | +0.01 | TBD |
+| Context Recall | 0.12 | 0.21 | +0.09 | TBD |
+| Context Precision | 0.20 | 0.14 | -0.06 | TBD |
 
-**Diagnosis:** The bottleneck is clearly the **retriever**, not the LLM. Context recall of 0.12 means the retriever is only finding ~12% of the information needed to answer correctly. Claude is doing its best with insufficient context. This is exactly why hybrid search is next — BM25 + dense embeddings should dramatically improve context recall and precision.
+### v1 → v2: Hybrid Search (BM25 + dense embeddings)
 
-Also update the RAGAS section under LangChain Migration:
-- ~~Skipped `context_recall` — requires manually written ground truth answers~~
-- Added full RAG Triad: `faithfulness`, `answer_relevancy`, `context_recall`, `context_precision`
-- Ground truth dataset committed to `src/evaluation/eval_dataset.json`
+**Diagnosis:** Baseline context recall of 0.12 revealed the retriever as the bottleneck — only 12% of relevant information was being found. Pure dense search struggled with exact technical terms like *"scope 1"*, *"FY30"*, *"SBTi"*.
+
+**Intervention:** Added BM25 alongside ChromaDB embeddings via `EnsembleRetriever` (weights 0.5/0.5).
+
+**Results:**
+- Faithfulness +0.23 — better retrieved context means Claude hallucinates less
+- Context recall +0.09 — BM25 finds chunks containing exact technical terms
+- Context precision -0.06 — known hybrid search tradeoff, BM25 introduces some keyword-matched noise
+
 ---
 
 ## 🚀 Getting Started
