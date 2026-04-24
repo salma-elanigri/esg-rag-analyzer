@@ -1,12 +1,13 @@
 from typing import List
-
-from langchain_core import documents
-
 from src.core.interfaces import IVectorStore, IEmbedder
 from src.core.models import DocumentChunk
 from langchain_chroma import Chroma
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
+from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
+from langchain_classic.retrievers import ContextualCompressionRetriever
+
 
 
 def _generate_ids(chunks: List[DocumentChunk]):
@@ -31,6 +32,8 @@ class ChromaStore(IVectorStore):
             persist_directory="./chroma_db", embedding_function=self.embedder
         )
         self.bm25_retriever = self.build_bm25()
+        self.model = HuggingFaceCrossEncoder(model_name="cross-encoder/ms-marco-MiniLM-L-6-v2")
+        self.reranker = CrossEncoderReranker(model=self.model, top_n=5)
 
     def build_bm25(self) -> BM25Retriever | None:
         """Builds BM25 retriever from existing docs in chroma store"""
@@ -54,6 +57,7 @@ class ChromaStore(IVectorStore):
             dense_retriever = self.vectorstore.as_retriever(**kwargs)
             return dense_retriever
         else:
+            self.bm25_retriever.k = kwargs.get("search_kwargs", {}).get("k", 5)
             # Dense retriever
             dense_retriever = self.vectorstore.as_retriever(**kwargs)
 
@@ -61,10 +65,14 @@ class ChromaStore(IVectorStore):
             ensemble_retriever = EnsembleRetriever(
                 retrievers=[self.bm25_retriever, dense_retriever], weights=[0.5, 0.5]
             )
-            return ensemble_retriever
+            compression_retriever = ContextualCompressionRetriever(
+                base_compressor=self.reranker,
+                base_retriever=ensemble_retriever
+            )
+            return compression_retriever
 
     def similarity_search(
-        self, query: str, search_type: str = "mmr", k: int = 5
+        self, query: str, search_type: str = "similarity", k: int = 5
     ) -> List[DocumentChunk]:
         retriever = self.as_retriever(search_type=search_type, search_kwargs={"k": k})
         results = retriever.invoke(query)
