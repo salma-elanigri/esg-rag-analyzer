@@ -73,6 +73,9 @@ Recursive character splitting (chunk size 1000, overlap 200). The overlap handle
 ---
 ## 📊 Evaluation Results (PwC Sustainability Report 2025)
 
+ > **For evaluation:** Download the PwC Network Sustainability Report 2025 and place it in the project root as `2025-pwc-network-sustainability-report.pdf` 
+ > before running `python -m src.evaluation.ragas_eval`
+
 Evaluated using the **RAG Triad** — faithfulness, answer relevancy, context recall and context precision — to separate retrieval failures from generation failures.
 
 | Metric | v1 Baseline (dense) | v2 Hybrid Search | v3 Hybrid + Reranking | Δ v1→v3 |
