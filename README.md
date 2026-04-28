@@ -115,8 +115,8 @@ Added `cross-encoder/ms-marco-MiniLM-L-6-v2` re-ranker via `ContextualCompressio
 ---
 
 ### Evaluation dataset
-Ground truth dataset: `src/evaluation/eval_dataset.json` (5 questions, PwC Network Sustainability Report 2025)
-Evaluation script: `src/evaluation/ragas_eval.py`
+- Ground truth dataset: `src/evaluation/eval_dataset.json` (5 questions, PwC Network Sustainability Report 2025)
+- Evaluation script: `src/evaluation/ragas_eval.py`
 
 ---
 
