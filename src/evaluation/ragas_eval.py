@@ -10,6 +10,7 @@ from src.infrastructure.pdf_loader import PdfLoader
 from ragas.llms import llm_factory
 from dotenv import load_dotenv
 import litellm
+import os
 
 load_dotenv(override=True)
 
@@ -24,20 +25,21 @@ evaluator_llm = llm_factory(
 
 # wrap your existing embedder for RAGAS
 evaluator_embeddings = Embedder()
-# Rag service
 
-# initialize RAG
+# initialize RAG service
 rag = RagService(
     loader=PdfLoader(),
     splitter=DocumentSplitter(),
     vectorstore=ChromaStore(embedder=Embedder()),
     llm_service=AnthropicService(),
 )
-# Dataset
-rag.ingest(
-    "/Users/salmaelanigri/Documents/portfolio/esg-rag-analyzer/2025-pwc-network-sustainability-report.pdf"
-)
 
+# ingest report
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+pdf_path = os.path.join(project_root, "2025-pwc-network-sustainability-report.pdf")
+rag.ingest(pdf_path)
+
+# prepare eval dataset
 questions = [
     "What are PwC's carbon emission targets?",
     "How does PwC approach diversity and inclusion?",
