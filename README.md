@@ -68,7 +68,6 @@ Recursive character splitting (chunk size 1000, overlap 200). The overlap handle
 - Used `litellm` provider via `llm_factory` — RAGAS 0.4.3 dropped `LangchainLLMWrapper` support
 - Pre-instantiated `faithfulness` / `answer_relevancy` from `ragas.metrics` with LLM set manually
 - Eval script is standalone (`src/evaluation/ragas_eval.py`) — not wired into app architecture
-- Skipped `context_recall` — requires manually written ground truth answers
 
 ---
 ## 📊 Evaluation Results (PwC Sustainability Report 2025)
