@@ -4,3 +4,11 @@ sentence-transformers
 pymupdf
 ollama
 python-dotenv
+langchain
+langchain-anthropic
+langchain-community
+langchain-chroma
+langchain-text-splitters
+rank-bm25
+ragas
+anthropic

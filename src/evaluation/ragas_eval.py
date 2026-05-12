@@ -64,7 +64,7 @@ contexts = []
 
 for question in questions:
     # get answer from RAG
-    answer = answer = "".join(rag.ask(question))
+    answer = "".join(rag.ask(question))
     answers.append(answer)
 
     # get retrieved chunks
