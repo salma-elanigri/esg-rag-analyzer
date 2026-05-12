@@ -35,7 +35,9 @@ rag = RagService(
 )
 
 # ingest report
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 pdf_path = os.path.join(project_root, "2025-pwc-network-sustainability-report.pdf")
 rag.ingest(pdf_path)
 

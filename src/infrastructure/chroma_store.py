@@ -9,7 +9,6 @@ from langchain_classic.retrievers.document_compressors import CrossEncoderRerank
 from langchain_classic.retrievers import ContextualCompressionRetriever
 
 
-
 def _generate_ids(chunks: List[DocumentChunk]):
     """This function prepares data for chromadb add function"""
     ids = []
@@ -32,7 +31,9 @@ class ChromaStore(IVectorStore):
             persist_directory="./chroma_db", embedding_function=self.embedder
         )
         self.bm25_retriever = self.build_bm25()
-        self.model = HuggingFaceCrossEncoder(model_name="cross-encoder/ms-marco-MiniLM-L-6-v2")
+        self.model = HuggingFaceCrossEncoder(
+            model_name="cross-encoder/ms-marco-MiniLM-L-6-v2"
+        )
         self.reranker = CrossEncoderReranker(model=self.model, top_n=5)
 
     def build_bm25(self) -> BM25Retriever | None:
@@ -66,8 +67,7 @@ class ChromaStore(IVectorStore):
                 retrievers=[self.bm25_retriever, dense_retriever], weights=[0.5, 0.5]
             )
             compression_retriever = ContextualCompressionRetriever(
-                base_compressor=self.reranker,
-                base_retriever=ensemble_retriever
+                base_compressor=self.reranker, base_retriever=ensemble_retriever
             )
             return compression_retriever
 
