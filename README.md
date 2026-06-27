@@ -38,7 +38,7 @@ Business logic is fully decoupled from infrastructure. The core `RagService` is 
 Building the pipeline from scratch proves understanding of *why* RAG works — vector math, retrieval logic, prompt construction. LangChain was added deliberately in v1 to enable LCEL chains and RAGAS evaluation — not as a shortcut.
 
 **Chunking strategy**
-Recursive character splitting (chunk size 1000, overlap 200). The overlap handles chunk-boundary answers — semantic splitting was tested but not justified given the embeddings model's robustness.
+Recursive character splitting (chunk size 1000, overlap 200). The overlap handles chunk-boundary answers.
 
 ---
 
